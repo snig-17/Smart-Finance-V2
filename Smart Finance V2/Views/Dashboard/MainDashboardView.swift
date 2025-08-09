@@ -11,12 +11,15 @@ import CoreData
 struct MainDashboardView: View {
     //connect to coredata
     @Environment(\.managedObjectContext) private var viewContext
+   // @EnvironmentObject var biometricManager: BiometricManager
     //fetch transactions from database
     @FetchRequest(
         sortDescriptors: [NSSortDescriptor(keyPath: \Transaction.transactionDate, ascending: false)], animation: .default)
     private var transactions: FetchedResults<Transaction>
-    // state for showing add transactions
+    // state for showing add transactions, settings
     @State private var showingAddTransactionView = false
+    @State private var showingSettings = false
+
     // MARK: - Computed Properties
     private var totalBalance: Double {
         transactions.reduce(0) { total, transaction in
@@ -44,9 +47,22 @@ struct MainDashboardView: View {
             .navigationTitle("Smart Finance")
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing){
-                        addButton
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button(action: { showingSettings = true }) {
+                        Image(systemName: "gear")
+                            .font(.title2)
+                            .foregroundColor(.blue)
+                    }
                 }
+                
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    addButton
+                }
+            }
+            .sheet(isPresented: $showingSettings) {
+                SettingsView()
+                    .environment(\.managedObjectContext, viewContext)
+                  //  .environmentObject(biometricManager)
             }
         }
     }
@@ -79,7 +95,9 @@ extension MainDashboardView {
     }
 }
 // MARK: - Preview
-    #Preview {
-        MainDashboardView()
-            .environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
-    }
+#Preview {
+    MainDashboardView()
+        .environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
+        .environmentObject(BiometricManager())  
+}
+
