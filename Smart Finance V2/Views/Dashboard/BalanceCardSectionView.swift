@@ -18,10 +18,11 @@ struct BalanceCardSectionView: View {
                 VStack(alignment:.leading, spacing: 4){
                     Text("Good Morning")
                         .font(.subheadline)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(.white)
                     Text("Your Balance")
                         .font(.title2)
                         .fontWeight(.semibold)
+                        .foregroundColor(.white)
                 }
                 
                 Spacer()
@@ -29,19 +30,19 @@ struct BalanceCardSectionView: View {
                 Button(action: {}){
                     Image(systemName: "gear")
                         .font(.title3)
-                        .foregroundColor(.blue)
+                        .foregroundColor(.white)
                 }
             }
             // main balance display
-            HStack (alignment: .bottom, spacing: 8){
+            HStack (alignment: .center, spacing: 8){
                 Text("$")
                     .font(.title)
                     .fontWeight(.medium)
-                    .foregroundColor(.primary)
+                    .foregroundColor(.white)
                 Text("\(totalBalance, specifier: "%.2f")")
                     .font(.largeTitle)
                     .fontWeight(.bold)
-                    .foregroundColor(.primary)
+                    .foregroundColor(.white)
                 
                 
             }
@@ -52,7 +53,7 @@ struct BalanceCardSectionView: View {
                     .foregroundColor(balanceChange >= 0 ? .green : .red)
                 Text("\(abs(balanceChange), specifier: "%.2f") from last month")
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(.white)
                 
             }
             // quick actions menu
@@ -84,7 +85,7 @@ struct BalanceCardSectionView: View {
                 
                 Text(title)
                     .font(.caption)
-                    .foregroundColor(.primary)
+                    .foregroundColor(.black)
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, 12)
