@@ -15,13 +15,27 @@ struct MainDashboardView: View {
     @FetchRequest(
         sortDescriptors: [NSSortDescriptor(keyPath: \Transaction.transactionDate, ascending: false)], animation: .default)
     private var transactions: FetchedResults<Transaction>
-    
+    // state for showing add transactions
+    @State private var showingAddTransactionView = false
+    // MARK: - Computed Properties
+    private var totalBalance: Double {
+        transactions.reduce(0) { total, transaction in
+            let amount = transaction.amount?.doubleValue ?? 0
+            return total + amount
+        }
+    }
+
+    private var balanceChange: Double {
+        245.67 // Mock data
+    }
+
+    // MARK: - UI Components
     var body: some View {
         NavigationView{
             ScrollView{
                 VStack(spacing: 20){
                         balanceCard
-                        recentTransactionSection
+                        recentTransactions
                         quickStatsSection
                     
                 }
@@ -41,14 +55,10 @@ struct MainDashboardView: View {
 
 extension MainDashboardView {
     private var balanceCard: some View {
-        BalanceCardSectionView(totalBalance: 50, balanceChange: 100)
+        BalanceCardSectionView(totalBalance: totalBalance, balanceChange: balanceChange)
     }
-    private var recentTransactionSection : some View {
-        Text("Transactions (coming soon...)")
-            .frame(height: 200)
-            .frame(maxWidth: .infinity)
-            .background(Color.green.opacity(0.1))
-            .cornerRadius(12)
+    private var recentTransactions: some View {
+        RecentTransactionsSectionView(transactions: Array(transactions))
     }
     private var quickStatsSection : some View {
         Text("Stats (coming soon...)")
