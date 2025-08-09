@@ -22,4 +22,14 @@
         <attribute name="tags" optional="YES" attributeType="String"/>
         <attribute name="transactionDate" attributeType="Date" defaultDateTimeInterval="776420940" usesScalarValueType="NO"/>
     </entity>
+    <entity name="UserPreferences" representedClassName="UserPreferences" syncable="YES" codeGenerationType="class">
+        <attribute name="biometricEnabled" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
+        <attribute name="budgetWarningsEnabled" optional="YES" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
+        <attribute name="decimalPlaces" attributeType="Integer 16" defaultValueString="2" usesScalarValueType="YES"/>
+        <attribute name="defaultCategory" optional="YES" attributeType="String" defaultValueString=""/>
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="lastBackupDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="notificationsEnabled" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
+        <attribute name="selectedCurrency" attributeType="String" defaultValueString="USD"/>
+    </entity>
 </model>
