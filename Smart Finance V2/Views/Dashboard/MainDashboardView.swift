@@ -8,7 +8,7 @@
 import SwiftUI
 import CoreData
 
-struct ContentView: View {
+struct MainDashboardView: View {
     //connect to coredata
     @Environment(\.managedObjectContext) private var viewContext
     //fetch transactions from database
@@ -20,7 +20,7 @@ struct ContentView: View {
         NavigationView{
             ScrollView{
                 VStack(spacing: 20){
-                        balanceCardSection
+                        balanceCard
                         recentTransactionSection
                         quickStatsSection
                     
@@ -39,13 +39,9 @@ struct ContentView: View {
     
 }
 
-extension ContentView {
-    private var balanceCardSection : some View {
-        Text("Balance Card (coming soon...)")
-            .frame(height:100)
-            .frame(maxWidth: .infinity)
-            .background(Color.blue.opacity(0.1))
-            .cornerRadius(12)
+extension MainDashboardView {
+    private var balanceCard: some View {
+        BalanceCardSectionView(totalBalance: 50, balanceChange: 100)
     }
     private var recentTransactionSection : some View {
         Text("Transactions (coming soon...)")
@@ -74,6 +70,6 @@ extension ContentView {
 }
 
     #Preview {
-        ContentView()
+        MainDashboardView()
             .environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
     }
