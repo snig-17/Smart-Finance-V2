@@ -104,30 +104,22 @@ struct TransactionRowView: View {
     }
     
 
-
+// MARK: - Preview
 #Preview {
-    VStack {
-        TransactionRowView(transaction: {
-                let transaction = Transaction()
-                transaction.merchant = "Coffee Shop"
-                transaction.category = "Food & Dining"
-                transaction.amount = NSDecimalNumber(value: -25.99)
-                transaction.paymentMethod = "Card"
-                transaction.transactionDate = Date()
-                return transaction
-            }())
-            
-            Divider()
-            
-        TransactionRowView(transaction: {
-                let transaction = Transaction()
-                transaction.merchant = "Gas Station"
-                transaction.category = "Transportation"
-                transaction.amount = NSDecimalNumber(value: -45.00)
-                transaction.paymentMethod = "Card"
-                transaction.transactionDate = Date()
-                return transaction
-            }())
-        }
-        .padding()
+    let context = PersistenceController.preview.container.viewContext
+    let transaction = Transaction(context: context)
+    transaction.id = UUID()
+    transaction.merchant = "Coffee Shop"
+    transaction.category = "Food & Dining"
+    transaction.amount = NSDecimalNumber(value: -25.99)
+    transaction.paymentMethod = "Card"
+    transaction.transactionDate = Date()
+    
+    return VStack {
+        TransactionRowView(transaction: transaction)
+        Divider()
+        TransactionRowView(transaction: transaction)
+    }
+    .padding()
+    .environment(\.managedObjectContext, context)
 }

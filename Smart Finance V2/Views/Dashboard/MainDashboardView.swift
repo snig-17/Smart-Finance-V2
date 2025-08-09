@@ -1,5 +1,5 @@
 //
-//  ContentView.swift
+//  MainDashboardView.swift
 //  Smart Finance V2
 //
 //  Created by Snigdha Tiwari  on 09/08/2025.
@@ -78,7 +78,7 @@ extension MainDashboardView {
         print("Add transaction tapped")
     }
 }
-
+// MARK: - Preview
     #Preview {
         MainDashboardView()
             .environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)

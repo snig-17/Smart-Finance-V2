@@ -81,18 +81,24 @@ struct RecentTransactionsSectionView: View {
     }
 
     // MARK: - Preview
-    #Preview {
-        VStack {
-            // Preview with transactions
-            RecentTransactionsSectionView(transactions: [
-                // Sample data for preview
-            ])
-            
-            Spacer()
-            
-            // Preview empty state
-            RecentTransactionsSectionView(transactions: [])
-        }
-        .padding()
-        .background(Color(.systemGray6))
+#Preview {
+    let context = PersistenceController.preview.container.viewContext
+    
+    // Create sample transaction with context
+    let transaction = Transaction(context: context)
+    transaction.id = UUID()
+    transaction.merchant = "Sample Store"
+    transaction.category = "Shopping"
+    transaction.amount = NSDecimalNumber(value: -99.99)
+    transaction.paymentMethod = "Card"
+    transaction.transactionDate = Date()
+    
+    return VStack {
+        RecentTransactionsSectionView(transactions: [transaction])
+        Spacer()
+        RecentTransactionsSectionView(transactions: [])
     }
+    .padding()
+    .background(Color(.systemGray6))
+    .environment(\.managedObjectContext, context)
+}
