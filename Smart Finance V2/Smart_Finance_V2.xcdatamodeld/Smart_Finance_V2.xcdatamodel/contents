@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="23788.4" systemVersion="24F74" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithCloudKit="YES" userDefinedModelVersionIdentifier="">
-    <entity name="Category" representedClassName="Category" syncable="YES" codeGenerationType="class">
+    <entity name="Category" representedClassName=".Category" syncable="YES" codeGenerationType="class">
         <attribute name="colorHex" optional="YES" attributeType="String"/>
         <attribute name="createdDate" attributeType="Date" defaultDateTimeInterval="776421720" usesScalarValueType="NO"/>
         <attribute name="iconName" optional="YES" attributeType="String"/>
@@ -8,8 +8,9 @@
         <attribute name="isDefault" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="name" optional="YES" attributeType="String"/>
         <attribute name="transactionCount" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <relationship name="transactions" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Transaction" inverseName="categoryRelationship" inverseEntity="Transaction"/>
     </entity>
-    <entity name="Transaction" representedClassName="Transaction" syncable="YES" codeGenerationType="class">
+    <entity name="Transaction" representedClassName=".Transaction" syncable="YES" codeGenerationType="class">
         <attribute name="amount" attributeType="Decimal" defaultValueString="0"/>
         <attribute name="category" attributeType="String" defaultValueString=""/>
         <attribute name="createdDate" attributeType="Date" defaultDateTimeInterval="776420940" usesScalarValueType="NO"/>
@@ -21,8 +22,9 @@
         <attribute name="recieptImagePath" optional="YES" attributeType="String"/>
         <attribute name="tags" optional="YES" attributeType="String"/>
         <attribute name="transactionDate" attributeType="Date" defaultDateTimeInterval="776420940" usesScalarValueType="NO"/>
+        <relationship name="categoryRelationship" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Category" inverseName="transactions" inverseEntity="Category"/>
     </entity>
-    <entity name="UserPreferences" representedClassName="UserPreferences" syncable="YES" codeGenerationType="class">
+    <entity name="UserPreferences" representedClassName=".UserPreferences" syncable="YES" codeGenerationType="class">
         <attribute name="biometricEnabled" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
         <attribute name="budgetWarningsEnabled" optional="YES" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
         <attribute name="decimalPlaces" attributeType="Integer 16" defaultValueString="2" usesScalarValueType="YES"/>

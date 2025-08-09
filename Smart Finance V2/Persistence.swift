@@ -7,6 +7,7 @@
 
 import CoreData
 
+
 struct PersistenceController {
     static let shared = PersistenceController()
 
@@ -15,8 +16,17 @@ struct PersistenceController {
         let result = PersistenceController(inMemory: true)
         let viewContext = result.container.viewContext
         for _ in 0..<10 {
-            let newItem = Item(context: viewContext)
-            newItem.timestamp = Date()
+            //sample transaction
+            let newTransaction = Transaction(context: viewContext)
+            newTransaction.id = UUID()
+            newTransaction.amount = NSDecimalNumber(string: "25.99")
+            newTransaction.merchant = "Sample Store"
+            newTransaction.category = "Other"
+            newTransaction.transactionDate = Date()
+            newTransaction.createdDate = Date()
+            newTransaction.paymentMethod = "Card"
+            newTransaction.isRecurring = false
+
         }
         do {
             try viewContext.save()
