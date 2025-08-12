@@ -30,12 +30,36 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		F44E2F4C2E473DA50070F348 /* Exceptions for "Smart Finance V2" folder in "Smart Finance V2" target */ = {
+		F4640C252E4B69E100DA719A /* Exceptions for "Smart Finance V2" folder in "Smart Finance V2" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
 			);
 			target = F44E2F252E473DA30070F348 /* Smart Finance V2 */;
+		};
+		F4640C4E2E4B6C2900DA719A /* Exceptions for "Tests" folder in "Smart Finance V2" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				"Smart Finance V2Tests/Smart_Finance_V2Tests.swift",
+				"Smart Finance V2UITests/Smart_Finance_V2UITests.swift",
+				"Smart Finance V2UITests/Smart_Finance_V2UITestsLaunchTests.swift",
+			);
+			target = F44E2F252E473DA30070F348 /* Smart Finance V2 */;
+		};
+		F4640C4F2E4B6C2900DA719A /* Exceptions for "Tests" folder in "Smart Finance V2Tests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				"Smart Finance V2Tests/Smart_Finance_V2Tests.swift",
+			);
+			target = F44E2F392E473DA50070F348 /* Smart Finance V2Tests */;
+		};
+		F4640C502E4B6C2900DA719A /* Exceptions for "Tests" folder in "Smart Finance V2UITests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				"Smart Finance V2UITests/Smart_Finance_V2UITests.swift",
+				"Smart Finance V2UITests/Smart_Finance_V2UITestsLaunchTests.swift",
+			);
+			target = F44E2F432E473DA50070F348 /* Smart Finance V2UITests */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
@@ -43,19 +67,19 @@
 		F44E2F282E473DA30070F348 /* Smart Finance V2 */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				F44E2F4C2E473DA50070F348 /* Exceptions for "Smart Finance V2" folder in "Smart Finance V2" target */,
+				F4640C252E4B69E100DA719A /* Exceptions for "Smart Finance V2" folder in "Smart Finance V2" target */,
 			);
 			path = "Smart Finance V2";
 			sourceTree = "<group>";
 		};
-		F44E2F3D2E473DA50070F348 /* Smart Finance V2Tests */ = {
+		F4640C452E4B6C2900DA719A /* Tests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = "Smart Finance V2Tests";
-			sourceTree = "<group>";
-		};
-		F44E2F472E473DA50070F348 /* Smart Finance V2UITests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = "Smart Finance V2UITests";
+			exceptions = (
+				F4640C4E2E4B6C2900DA719A /* Exceptions for "Tests" folder in "Smart Finance V2" target */,
+				F4640C4F2E4B6C2900DA719A /* Exceptions for "Tests" folder in "Smart Finance V2Tests" target */,
+				F4640C502E4B6C2900DA719A /* Exceptions for "Tests" folder in "Smart Finance V2UITests" target */,
+			);
+			path = Tests;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -89,8 +113,7 @@
 			isa = PBXGroup;
 			children = (
 				F44E2F282E473DA30070F348 /* Smart Finance V2 */,
-				F44E2F3D2E473DA50070F348 /* Smart Finance V2Tests */,
-				F44E2F472E473DA50070F348 /* Smart Finance V2UITests */,
+				F4640C452E4B6C2900DA719A /* Tests */,
 				F44E2F272E473DA30070F348 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -122,6 +145,7 @@
 			);
 			fileSystemSynchronizedGroups = (
 				F44E2F282E473DA30070F348 /* Smart Finance V2 */,
+				F4640C452E4B6C2900DA719A /* Tests */,
 			);
 			name = "Smart Finance V2";
 			packageProductDependencies = (
@@ -143,9 +167,6 @@
 			dependencies = (
 				F44E2F3C2E473DA50070F348 /* PBXTargetDependency */,
 			);
-			fileSystemSynchronizedGroups = (
-				F44E2F3D2E473DA50070F348 /* Smart Finance V2Tests */,
-			);
 			name = "Smart Finance V2Tests";
 			packageProductDependencies = (
 			);
@@ -165,9 +186,6 @@
 			);
 			dependencies = (
 				F44E2F462E473DA50070F348 /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				F44E2F472E473DA50070F348 /* Smart Finance V2UITests */,
 			);
 			name = "Smart Finance V2UITests";
 			packageProductDependencies = (

@@ -7,11 +7,7 @@
 
 import SwiftUI
 
-enum AuthenticationState {
-    case setup
-    case authentication
-    case authenticated
-}
+
 
 struct AuthenticationGate: View {
     @StateObject private var biometricManager = BiometricManager()
