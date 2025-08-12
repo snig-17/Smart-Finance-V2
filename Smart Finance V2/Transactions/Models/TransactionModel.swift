@@ -10,7 +10,7 @@ import Foundation
 struct TransactionModel {
     let id: UUID
     var amount: Double
-    var description: String
+    var transaction: String
     var date: Date
     var categoryName: String
     
