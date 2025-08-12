@@ -37,8 +37,6 @@ struct MainDashboardView: View {
         NavigationView {
             ScrollView {
                 VStack(spacing: 20) {
-                    // Debug section (remove in production)
-                    debugSection
                     balanceCard
                     recentTransactions
                     quickStatsSection
@@ -68,32 +66,7 @@ struct MainDashboardView: View {
         }
     }
     
-    // Debug section
-    private var debugSection: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text("🔍 MAIN DASHBOARD DEBUG:")
-                .font(.headline)
-                .foregroundColor(.blue)
-            
-            Text("Setup Completed: \(biometricManager.isSetupCompleted ? "✅ YES" : "❌ NO")")
-                .font(.caption)
-            
-            Text("Is Authenticated: \(biometricManager.isAuthenticated ? "✅ YES" : "❌ NO")")
-                .font(.caption)
-            
-            Text("Biometric Type: \(biometricManager.biometricType.displayName)")
-                .font(.caption)
-            
-            if let error = biometricManager.authenticationError {
-                Text("Error: \(error)")
-                    .font(.caption)
-                    .foregroundColor(.red)
-            }
-        }
-        .padding()
-        .background(Color.blue.opacity(0.1))
-        .cornerRadius(8)
-    }
+   
 }
 
 extension MainDashboardView {
