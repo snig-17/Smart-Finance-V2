@@ -1,5 +1,5 @@
 //
-//  BiometricAuthView.swift
+//  BiometricSetupView.swift
 //  Smart Finance V2
 //
 //  Created by Snigdha Tiwari on 09/08/2025.
@@ -7,162 +7,163 @@
 
 import SwiftUI
 
-struct BiometricAuthView: View {
-    @EnvironmentObject var biometricManager: BiometricManager // ✅ Use EnvironmentObject
-    @State private var isAuthenticating = false
+struct BiometricSetupView: View {
+    @EnvironmentObject var biometricManager: BiometricManager // ✅ FIXED: Use EnvironmentObject
+    @State private var isSettingUp = false
     @State private var showError = false
-    @State private var pulseAnimation = false
+    @State private var errorMessage = ""
     
     var body: some View {
         ZStack {
-            // Background gradient
             LinearGradient(
-                gradient: Gradient(colors: [Color.blue.opacity(0.8), Color.purple.opacity(0.6)]),
+                gradient: Gradient(colors: [Color.green, Color.blue]),
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
             .ignoresSafeArea()
             
-            VStack(spacing: 40) {
+            VStack(spacing: 30) {
                 Spacer()
                 
-                // App branding
-                appBrandingSection
+                welcomeSection
+                setupSection
                 
-                // Authentication section
-                authenticationSection
-                
-                // Error message
                 if showError {
                     errorMessageView
                 }
                 
                 Spacer()
-                
-                // Footer
-                footerSection
             }
             .padding()
-        }
-        .onAppear {
-            // Auto-authenticate when view appears
-            Task {
-                await authenticateUser()
-            }
         }
     }
     
     // MARK: - UI Components
     
-    private var appBrandingSection: some View {
-        VStack(spacing: 16) {
-            // App icon
+    private var welcomeSection: some View {
+        VStack(spacing: 20) {
             ZStack {
                 Circle()
                     .fill(Color.white.opacity(0.2))
-                    .frame(width: 100, height: 100)
+                    .frame(width: 120, height: 120)
                 
                 Image(systemName: "banknote.fill")
-                    .font(.system(size: 50))
+                    .font(.system(size: 60))
                     .foregroundColor(.white)
             }
             
-            Text("SmartFinance")
+            Text("Welcome to SmartFinance!")
                 .font(.largeTitle)
                 .fontWeight(.bold)
                 .foregroundColor(.white)
+                .multilineTextAlignment(.center)
             
-            Text("Welcome back!")
+            Text("Your Personal Finance Companion")
                 .font(.title3)
                 .foregroundColor(.white.opacity(0.8))
+                .multilineTextAlignment(.center)
         }
     }
     
-    private var authenticationSection: some View {
-        VStack(spacing: 30) {
-            // Biometric icon with pulse animation
+    private var setupSection: some View {
+        VStack(spacing: 25) {
+            // Security icon
             ZStack {
-                Circle()
-                    .fill(Color.white.opacity(0.1))
-                    .frame(width: 120, height: 120)
-                    .scaleEffect(pulseAnimation ? 1.2 : 1.0)
-                    .opacity(pulseAnimation ? 0.3 : 0.6)
-                    .animation(.easeInOut(duration: 1.5).repeatForever(autoreverses: true), value: pulseAnimation)
-                
                 Circle()
                     .fill(Color.white.opacity(0.2))
                     .frame(width: 100, height: 100)
+                    .scaleEffect(isSettingUp ? 1.1 : 1.0)
+                    .animation(.easeInOut(duration: 1.0).repeatForever(autoreverses: true), value: isSettingUp)
                 
                 Image(systemName: biometricManager.biometricType.iconName)
                     .font(.system(size: 40))
                     .foregroundColor(.white)
             }
-            .onAppear {
-                pulseAnimation = true
-            }
             
-            VStack(spacing: 16) {
-                Text("Authentication Required")
+            VStack(spacing: 15) {
+                Text("Secure Your Financial Data")
                     .font(.title2)
                     .fontWeight(.semibold)
                     .foregroundColor(.white)
                 
-                Text("Use \(biometricManager.biometricType.displayName) to access your financial data")
+                Text("Set up \(biometricManager.biometricType.displayName) to protect your personal financial information with the highest level of security.")
                     .font(.body)
                     .foregroundColor(.white.opacity(0.8))
                     .multilineTextAlignment(.center)
                     .padding(.horizontal)
             }
             
-            // Authentication button
+            VStack(spacing: 15) {
+                // Security features
+                securityFeatureRow(icon: "lock.shield", text: "Bank-level security")
+                securityFeatureRow(icon: "eye.slash", text: "Your data never leaves your device")
+                securityFeatureRow(icon: "checkmark.shield", text: "Required every time you open the app")
+            }
+            
+            // Setup button
             Button(action: {
                 Task {
-                    await authenticateUser()
+                    await setupBiometric()
                 }
             }) {
-                HStack(spacing: 12) {
-                    if isAuthenticating {
+                HStack {
+                    if isSettingUp {
                         ProgressView()
-                            .progressViewStyle(CircularProgressViewStyle(tint: .blue))
+                            .progressViewStyle(CircularProgressViewStyle(tint: .green))
                             .scaleEffect(0.8)
                     } else {
                         Image(systemName: biometricManager.biometricType.iconName)
                             .font(.title3)
                     }
                     
-                    Text(isAuthenticating ? "Authenticating..." : "Authenticate with \(biometricManager.biometricType.displayName)")
+                    Text(isSettingUp ? "Setting up..." : "Set up \(biometricManager.biometricType.displayName)")
                         .font(.headline)
                 }
-                .foregroundColor(.blue)
+                .foregroundColor(.green)
                 .frame(maxWidth: .infinity)
                 .padding()
                 .background(Color.white)
                 .cornerRadius(12)
                 .shadow(color: .black.opacity(0.1), radius: 5, x: 0, y: 2)
             }
-            .disabled(isAuthenticating || biometricManager.biometricType == .none)
+            .disabled(isSettingUp || biometricManager.biometricType == .none)
             .padding(.horizontal)
         }
     }
     
+    private func securityFeatureRow(icon: String, text: String) -> some View {
+        HStack {
+            Image(systemName: icon)
+                .foregroundColor(.green)
+                .frame(width: 24)
+            
+            Text(text)
+                .foregroundColor(.white.opacity(0.9))
+                .font(.subheadline)
+            
+            Spacer()
+        }
+        .padding(.horizontal, 40)
+    }
+    
     private var errorMessageView: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: 8) {
             HStack {
                 Image(systemName: "exclamationmark.triangle.fill")
                     .foregroundColor(.red)
-                Text("Authentication Failed")
+                Text("Setup Failed")
                     .font(.headline)
                     .foregroundColor(.white)
             }
             
-            Text(biometricManager.authenticationError ?? "Please try again")
+            Text(errorMessage)
                 .font(.subheadline)
                 .foregroundColor(.white.opacity(0.8))
                 .multilineTextAlignment(.center)
             
             Button("Try Again") {
                 Task {
-                    await authenticateUser()
+                    await setupBiometric()
                 }
             }
             .foregroundColor(.white)
@@ -177,49 +178,42 @@ struct BiometricAuthView: View {
         .transition(.scale.combined(with: .opacity))
     }
     
-    private var footerSection: some View {
-        VStack(spacing: 8) {
-            HStack {
-                Image(systemName: "lock.shield")
-                    .foregroundColor(.white.opacity(0.6))
-                Text("Your financial data is protected")
-                    .font(.caption)
-                    .foregroundColor(.white.opacity(0.6))
-            }
-            
-            Text("Biometric data never leaves your device")
-                .font(.caption2)
-                .foregroundColor(.white.opacity(0.5))
-        }
-    }
-    
     // MARK: - Actions
     
-    private func authenticateUser() async {
+    private func setupBiometric() async {
         await MainActor.run {
-            isAuthenticating = true
+            isSettingUp = true
             showError = false
         }
         
+        // ✅ FIXED: Use the correct method
         let success = await biometricManager.authenticateUser()
         
         await MainActor.run {
-            isAuthenticating = false
+            isSettingUp = false
             
-            if !success {
-                showError = true
-                
-                // Auto-hide error after 3 seconds
-                DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-                    showError = false
-                }
+            if success {
+                // Complete the setup
+                biometricManager.completeSetup()
+            } else {
+                handleSetupFailure()
             }
+        }
+    }
+    
+    private func handleSetupFailure() {
+        errorMessage = biometricManager.authenticationError ?? "Setup failed. Please try again."
+        showError = true
+        
+        // Auto-hide error after 5 seconds
+        DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+            showError = false
         }
     }
 }
 
 // MARK: - Preview
 #Preview {
-    BiometricAuthView()
-        .environmentObject(BiometricManager())
+    BiometricSetupView()
+        .environmentObject(BiometricManager()) // ✅ FIXED: Use environmentObject
 }

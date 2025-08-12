@@ -9,14 +9,14 @@ import SwiftUI
 import CoreData
 
 struct MainDashboardView: View {
-    //connect to coredata
     @Environment(\.managedObjectContext) private var viewContext
-   // @EnvironmentObject var biometricManager: BiometricManager
-    //fetch transactions from database
+    @EnvironmentObject var biometricManager: BiometricManager
+    
     @FetchRequest(
-        sortDescriptors: [NSSortDescriptor(keyPath: \Transaction.transactionDate, ascending: false)], animation: .default)
+        sortDescriptors: [NSSortDescriptor(keyPath: \Transaction.transactionDate, ascending: false)],
+        animation: .default)
     private var transactions: FetchedResults<Transaction>
-    // state for showing add transactions, settings
+    
     @State private var showingAddTransactionView = false
     @State private var showingSettings = false
 
@@ -34,13 +34,14 @@ struct MainDashboardView: View {
 
     // MARK: - UI Components
     var body: some View {
-        NavigationView{
-            ScrollView{
-                VStack(spacing: 20){
-                        balanceCard
-                        recentTransactions
-                        quickStatsSection
-                    
+        NavigationView {
+            ScrollView {
+                VStack(spacing: 20) {
+                    // Debug section (remove in production)
+                    debugSection
+                    balanceCard
+                    recentTransactions
+                    quickStatsSection
                 }
                 .padding()
             }
@@ -61,21 +62,49 @@ struct MainDashboardView: View {
             }
             .sheet(isPresented: $showingSettings) {
                 SettingsView()
+                    .environmentObject(biometricManager)
                     .environment(\.managedObjectContext, viewContext)
-                  //  .environmentObject(biometricManager)
             }
         }
     }
     
+    // Debug section
+    private var debugSection: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text("🔍 MAIN DASHBOARD DEBUG:")
+                .font(.headline)
+                .foregroundColor(.blue)
+            
+            Text("Setup Completed: \(biometricManager.isSetupCompleted ? "✅ YES" : "❌ NO")")
+                .font(.caption)
+            
+            Text("Is Authenticated: \(biometricManager.isAuthenticated ? "✅ YES" : "❌ NO")")
+                .font(.caption)
+            
+            Text("Biometric Type: \(biometricManager.biometricType.displayName)")
+                .font(.caption)
+            
+            if let error = biometricManager.authenticationError {
+                Text("Error: \(error)")
+                    .font(.caption)
+                    .foregroundColor(.red)
+            }
+        }
+        .padding()
+        .background(Color.blue.opacity(0.1))
+        .cornerRadius(8)
+    }
 }
 
 extension MainDashboardView {
     private var balanceCard: some View {
         BalanceCardSectionView(totalBalance: totalBalance, balanceChange: balanceChange)
     }
+    
     private var recentTransactions: some View {
         RecentTransactionsSectionView(transactions: Array(transactions))
     }
+    
     private var quickStatsSection : some View {
         Text("Stats (coming soon...)")
             .frame(height: 100)
@@ -83,6 +112,7 @@ extension MainDashboardView {
             .background(Color.orange.opacity(0.1))
             .cornerRadius(12)
     }
+    
     private var addButton : some View {
         Button(action: addTransaction) {
             Image(systemName: "plus.circle.fill")
@@ -90,14 +120,15 @@ extension MainDashboardView {
                 .foregroundColor(.blue)
         }
     }
+    
     private func addTransaction() {
         print("Add transaction tapped")
     }
 }
+
 // MARK: - Preview
 #Preview {
     MainDashboardView()
         .environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
-        .environmentObject(BiometricManager())  
+        .environmentObject(BiometricManager())
 }
-

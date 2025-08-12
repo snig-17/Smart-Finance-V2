@@ -8,10 +8,11 @@
 import SwiftUI
 
 struct ContentView: View {
+    @Environment(\.managedObjectContext) private var viewContext
+    
     var body: some View {
-        AuthenticationGate {
-            MainDashboardView()
-        }
+        AuthenticationGate()
+            .environment(\.managedObjectContext, viewContext) // ✅ Pass Core Data context
     }
 }
 

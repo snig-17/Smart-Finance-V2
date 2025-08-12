@@ -6,45 +6,56 @@
 //
 
 import SwiftUI
+import LocalAuthentication
 
 struct BiometricSettingsView: View {
     @EnvironmentObject var biometricManager: BiometricManager
-    @AppStorage("biometricEnabled") private var biometricEnabled = false
     @State private var showingAlert = false
     @State private var alertMessage = ""
+    @State private var testResult: String = ""
     
     var body: some View {
         NavigationView {
             Form {
                 Section {
-                    // Biometric status info
                     biometricStatusView
-                    
-                    // Toggle control
-                    biometricToggleView
-                    
+                    mandatorySecurityInfo
                 } header: {
                     Text("Biometric Authentication")
                 } footer: {
-                    Text("When enabled, you'll need to authenticate with \(biometricManager.biometricType.displayName) each time you open the app to protect your financial data.")
+                    Text("Biometric authentication is mandatory and cannot be disabled. This ensures maximum security for your financial data.")
                 }
                 
                 Section {
-                    // Additional security info
+                    testAuthenticationButton
+                    if !testResult.isEmpty {
+                        testResultView
+                    }
+                } header: {
+                    Text("Authentication Test")
+                } footer: {
+                    Text("Test your biometric authentication to ensure it's working properly.")
+                }
+                
+                Section {
                     securityInfoView
                 } header: {
                     Text("Security Information")
                 }
+                
+                // Debug section for development
+                Section {
+                    debugInfoView
+                } header: {
+                    Text("System Information")
+                }
             }
             .navigationTitle("Security Settings")
             .navigationBarTitleDisplayMode(.large)
-            .alert("Authentication Required", isPresented: $showingAlert) {
+            .alert("Authentication Test", isPresented: $showingAlert) {
                 Button("OK") { }
             } message: {
                 Text(alertMessage)
-            }
-            .onAppear {
-                biometricManager.checkBiometricAvailability()
             }
         }
     }
@@ -55,14 +66,45 @@ struct BiometricSettingsView: View {
         HStack {
             Image(systemName: biometricManager.biometricType.iconName)
                 .font(.title2)
-                .foregroundColor(biometricManager.biometricType == .none ? .gray : .blue)
+                .foregroundColor(biometricManager.biometricType == .none ? .gray : .green)
                 .frame(width: 30)
             
             VStack(alignment: .leading, spacing: 4) {
                 Text("Authentication Method")
                     .font(.headline)
                 
-                Text(biometricManager.getBiometricStatusMessage())
+                Text(biometricStatusMessage)
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+            }
+            
+            Spacer()
+            
+            // Status indicator
+            Text("REQUIRED")
+                .font(.caption)
+                .fontWeight(.bold)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
+                .background(Color.green.opacity(0.2))
+                .foregroundColor(.green)
+                .cornerRadius(8)
+        }
+        .padding(.vertical, 4)
+    }
+    
+    private var mandatorySecurityInfo: some View {
+        HStack {
+            Image(systemName: "exclamationmark.shield.fill")
+                .font(.title2)
+                .foregroundColor(.orange)
+                .frame(width: 30)
+            
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Mandatory Security")
+                    .font(.headline)
+                
+                Text("Biometric authentication cannot be disabled for your protection")
                     .font(.subheadline)
                     .foregroundColor(.secondary)
             }
@@ -72,24 +114,29 @@ struct BiometricSettingsView: View {
         .padding(.vertical, 4)
     }
     
-    private var biometricToggleView: some View {
-        HStack {
-            VStack(alignment: .leading, spacing: 4) {
-                Text("Enable Biometric Authentication")
-                    .font(.headline)
-                
-                Text(biometricEnabled ? "Enabled" : "Disabled")
-                    .font(.subheadline)
-                    .foregroundColor(biometricEnabled ? .green : .secondary)
+    private var testAuthenticationButton: some View {
+        Button(action: testAuthentication) {
+            HStack {
+                Image(systemName: "checkmark.shield")
+                    .foregroundColor(.blue)
+                Text("Test Biometric Authentication")
+                    .foregroundColor(.primary)
+                Spacer()
+                Image(systemName: "chevron.right")
+                    .foregroundColor(.secondary)
+                    .font(.caption)
             }
-            
-            Spacer()
-            
-            Toggle("", isOn: $biometricEnabled)
-                .disabled(biometricManager.biometricType == .none)
-                .onChange(of: biometricEnabled) { _, newValue in
-                    handleBiometricToggle(newValue)
-                }
+        }
+        .disabled(biometricManager.biometricType == .none)
+    }
+    
+    private var testResultView: some View {
+        HStack {
+            Image(systemName: testResult.contains("Success") ? "checkmark.circle.fill" : "xmark.circle.fill")
+                .foregroundColor(testResult.contains("Success") ? .green : .red)
+            Text(testResult)
+                .font(.subheadline)
+                .foregroundColor(testResult.contains("Success") ? .green : .red)
         }
         .padding(.vertical, 4)
     }
@@ -106,8 +153,16 @@ struct BiometricSettingsView: View {
             
             securityInfoRow(
                 icon: "checkmark.shield",
-                title: "App Security",
+                title: "Always Required",
                 description: "Authentication is required each time you open the app"
+            )
+            
+            Divider()
+            
+            securityInfoRow(
+                icon: "shield.checkered",
+                title: "Maximum Security",
+                description: "Mandatory biometrics provide the highest level of protection"
             )
             
             Divider()
@@ -115,17 +170,32 @@ struct BiometricSettingsView: View {
             securityInfoRow(
                 icon: "key.fill",
                 title: "Fallback Protection",
-                description: "Use your device passcode if biometrics are unavailable"
+                description: "Use your device passcode if biometrics are temporarily unavailable"
             )
         }
         .padding(.vertical, 8)
+    }
+    
+    private var debugInfoView: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            debugInfoRow(title: "Biometric Type", value: biometricManager.biometricType.displayName)
+            debugInfoRow(title: "Setup Completed", value: biometricManager.isSetupCompleted ? "Yes" : "No")
+            debugInfoRow(title: "Currently Authenticated", value: biometricManager.isAuthenticated ? "Yes" : "No")
+            
+            if let error = biometricManager.authenticationError {
+                debugInfoRow(title: "Last Error", value: error)
+                    .foregroundColor(.red)
+            }
+        }
+        .font(.caption)
+        .foregroundColor(.secondary)
     }
     
     private func securityInfoRow(icon: String, title: String, description: String) -> some View {
         HStack(alignment: .top, spacing: 12) {
             Image(systemName: icon)
                 .font(.title3)
-                .foregroundColor(.green)
+                .foregroundColor(.blue)
                 .frame(width: 24)
             
             VStack(alignment: .leading, spacing: 4) {
@@ -142,36 +212,48 @@ struct BiometricSettingsView: View {
         }
     }
     
-    // MARK: - Actions
-    
-    private func handleBiometricToggle(_ isEnabled: Bool) {
-        if isEnabled && biometricManager.biometricType == .none {
-            // Can't enable if no biometric available
-            biometricEnabled = false
-            alertMessage = "Biometric authentication is not available on this device. Please set up Face ID or Touch ID in your device settings."
-            showingAlert = true
-        } else if isEnabled {
-            // Enabling biometric authentication
-            Task {
-                let success = await testBiometricAuthentication()
-                await MainActor.run {
-                    if !success {
-                        biometricEnabled = false
-                        alertMessage = "Authentication failed. Please try again or check your biometric settings."
-                        showingAlert = true
-                    }
-                }
-            }
+    private func debugInfoRow(title: String, value: String) -> some View {
+        HStack {
+            Text("\(title):")
+                .fontWeight(.medium)
+            Spacer()
+            Text(value)
         }
-        // If disabling, no additional action needed
     }
     
-    private func testBiometricAuthentication() async -> Bool {
-        // Test authentication when enabling
-        if biometricManager.biometricType == .passcode {
-            return await biometricManager.authenticateWithPasscode()
-        } else {
-            return await biometricManager.authenticateWithBiometric()
+    // MARK: - Computed Properties
+    
+    private var biometricStatusMessage: String {
+        switch biometricManager.biometricType {
+        case .faceID:
+            return "Face ID Authentication Active"
+        case .touchID:
+            return "Touch ID Authentication Active"
+        case .none:
+            return "Biometric authentication not available"
+        @unknown default:
+            return "Unknown biometric type"
+        }
+    }
+    
+    // MARK: - Actions
+    
+    private func testAuthentication() {
+        testResult = "Testing..."
+        
+        Task {
+            let success = await biometricManager.authenticateUser()
+            
+            await MainActor.run {
+                if success {
+                    testResult = "✅ Authentication successful!"
+                    alertMessage = "Biometric authentication is working correctly!"
+                } else {
+                    testResult = "❌ Authentication failed"
+                    alertMessage = biometricManager.authenticationError ?? "Authentication failed. Please try again."
+                }
+                showingAlert = true
+            }
         }
     }
 }

@@ -13,7 +13,7 @@ struct Smart_Finance_V2App: App {
 
     var body: some Scene {
         WindowGroup {
-            MainDashboardView()
+            ContentView()
                 .environment(\.managedObjectContext, persistenceController.container.viewContext)
         }
     }
