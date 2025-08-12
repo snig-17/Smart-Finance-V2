@@ -11,6 +11,7 @@ import CoreData
 struct TransactionListView: View {
     
     @Environment(\.managedObjectContext) private var viewContext
+    @Environment(\.dismiss) private var dismiss
     @StateObject private var viewModel: TransactionViewModel
     @State private var showingAddTransaction = false
     @State private var searchText = ""
@@ -36,6 +37,10 @@ struct TransactionListView: View {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     addButton
                 }
+                ToolbarItem(placement: .navigationBarLeading) {
+                    backButton
+                }
+
             }
             .sheet(isPresented: $showingAddTransaction) {
                 AddTransactionView(viewModel: viewModel)
@@ -53,6 +58,18 @@ struct TransactionListView: View {
             }
         }
     }
+    private var backButton: some View {
+        Button(action: { dismiss() }) {
+            HStack(spacing: 4) {
+                Image(systemName: "chevron.left")
+                    .font(.body.weight(.medium))
+                Text("Dashboard")
+                    .font(.body)
+            }
+            .foregroundColor(.blue)
+        }
+    }
+
     
     private var balanceHeader: some View {
         VStack(spacing: 16) {
