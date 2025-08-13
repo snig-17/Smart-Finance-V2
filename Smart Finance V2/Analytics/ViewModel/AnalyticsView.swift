@@ -10,7 +10,7 @@ import SwiftUI
 import CoreData
 
 @MainActor
-class AnalyticsViewModel: ObservableObject {
+class AnalyticsView: ObservableObject {
     
     // MARK: - Published Properties
     @Published var isLoading = false
@@ -460,10 +460,10 @@ enum AnalyticsError: Error {
 }
 
 // MARK: - Preview Helper
-extension AnalyticsViewModel {
-    static func preview(context: NSManagedObjectContext) -> AnalyticsViewModel {
+extension AnalyticsView {
+    static func preview(context: NSManagedObjectContext) -> AnalyticsView {
         let transactionVM = TransactionViewModel(viewContext: context)
-        return AnalyticsViewModel(viewContext: context, transactionViewModel: transactionVM)
+        return AnalyticsView(viewContext: context, transactionViewModel: transactionVM)
     }
     
     // For preview/testing purposes

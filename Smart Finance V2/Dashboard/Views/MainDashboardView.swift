@@ -3,6 +3,7 @@
 //  Smart Finance V2
 //
 //  Created by Snigdha Tiwari  on 09/08/2025.
+//  Enhanced with Analytics Integration
 //
 
 import SwiftUI
@@ -17,78 +18,97 @@ struct MainDashboardView: View {
         animation: .default)
     private var transactions: FetchedResults<Transaction>
     
+    // State variables
     @State private var showingAddTransactionView = false
     @State private var showingSettings = false
-    @State private var showingTransactionList = false // ✅ NEW: For navigation
+    @State private var showingTransactionList = false
 
-    // MARK: - Computed Properties
-    private var totalBalance: Double {
-        transactions.reduce(0) { total, transaction in
-            let amount = transaction.amount?.doubleValue ?? 0
-            return total + amount
+    // MARK: - Body
+    var body: some View {
+        NavigationStack {
+            contentView
+            .navigationTitle("Smart Finance")
+            .navigationBarTitleDisplayMode(.large)
+            .toolbar(content: toolbarContent)
+            .refreshable {
+                // Refresh transactions when pulled to refresh
+            }
+        }
+        .sheet(isPresented: $showingSettings) {
+            SettingsView()
+                .environmentObject(biometricManager)
+                .environment(\.managedObjectContext, viewContext)
+        }
+        .sheet(isPresented: $showingAddTransactionView) {
+            AddTransactionView(viewModel: TransactionViewModel(viewContext: viewContext))
+        }
+        .fullScreenCover(isPresented: $showingTransactionList) {
+            TransactionListView(viewContext: viewContext)
         }
     }
 
-    private var balanceChange: Double {
-        245.67 // Mock data - you can calculate real change later
+    private var contentView: some View {
+        ScrollView {
+            LazyVStack(spacing: 20) {
+                headerSection
+                balanceCard
+                simpleStatsSection
+                quickActionsSection
+                recentTransactions
+                quickStatsSection
+            }
+            .padding()
+        }
     }
-
-    // MARK: - UI Components
-    var body: some View {
-        NavigationView {
-            ScrollView {
-                VStack(spacing: 20) {
-                    // Balance Card (now interactive)
-                    balanceCard
-                    
-                    // Quick Actions Section ✅ NEW
-                    quickActionsSection
-                    
-                    // Recent Transactions (now interactive)
-                    recentTransactions
-                    
-                    // Quick Stats Section
-                    quickStatsSection
-                }
-                .padding()
+    
+    // MARK: - Toolbar Content
+    @ToolbarContentBuilder
+    private func toolbarContent() -> some ToolbarContent {
+        ToolbarItem(placement: .topBarLeading) {
+            Button {
+                showingSettings = true
+            } label: {
+                Image(systemName: "gear")
+                    .font(.title2)
+                    .foregroundColor(.blue)
             }
-            .navigationTitle("Smart Finance")
-            .navigationBarTitleDisplayMode(.large)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button(action: { showingSettings = true }) {
-                        Image(systemName: "gear")
-                            .font(.title2)
-                            .foregroundColor(.blue)
-                    }
-                }
-                
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    // ✅ UPDATED: Quick add transaction button
-                    Button(action: { showingAddTransactionView = true }) {
-                        Image(systemName: "plus.circle.fill")
-                            .font(.title2)
-                            .foregroundColor(.blue)
-                    }
-                }
-            }
-            .sheet(isPresented: $showingSettings) {
-                SettingsView()
-                    .environmentObject(biometricManager)
-                    .environment(\.managedObjectContext, viewContext)
-            }
-            // ✅ NEW: Add transaction sheet
-            .sheet(isPresented: $showingAddTransactionView) {
-                AddTransactionView(viewModel: TransactionViewModel(viewContext: viewContext))
-            }
-            // ✅ NEW: Full screen transaction list
-            .fullScreenCover(isPresented: $showingTransactionList) {
-                TransactionListView(viewContext: viewContext)
+        }
+        
+        ToolbarItem(placement: .topBarTrailing) {
+            Button {
+                showingAddTransactionView = true
+            } label: {
+                Image(systemName: "plus.circle.fill")
+                    .font(.title2)
+                    .foregroundColor(.blue)
             }
         }
     }
     
-    // ✅ UPDATED: Interactive balance card
+    // MARK: - Header Section
+    private var headerSection: some View {
+        HStack {
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Good \(greetingTime())")
+                    .font(.title2)
+                    .fontWeight(.semibold)
+                
+                Text("Here's your financial overview")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+            }
+            
+            Spacer()
+            
+            Button(action: { showingSettings = true }) {
+                Image(systemName: "person.circle.fill")
+                    .font(.title2)
+                    .foregroundColor(.blue)
+            }
+        }
+    }
+    
+    // MARK: - Balance Card
     private var balanceCard: some View {
         Button(action: { showingTransactionList = true }) {
             VStack(spacing: 16) {
@@ -101,6 +121,7 @@ struct MainDashboardView: View {
                         .font(.largeTitle)
                         .fontWeight(.bold)
                         .foregroundColor(totalBalance >= 0 ? .green : .red)
+                        .contentTransition(.numericText())
                 }
                 
                 HStack(spacing: 40) {
@@ -137,7 +158,7 @@ struct MainDashboardView: View {
                     }
                 }
                 
-                // ✅ NEW: Tap indicator
+                // Tap indicator
                 HStack {
                     Text("Tap to view all transactions")
                         .font(.caption)
@@ -149,16 +170,72 @@ struct MainDashboardView: View {
                 .padding(.top, 4)
             }
             .padding()
-            .background(
-                RoundedRectangle(cornerRadius: 16)
-                    .fill(Color(.systemGray6))
-                    .shadow(color: .black.opacity(0.05), radius: 8, x: 0, y: 2)
-            )
+            .background(cardBackground)
         }
         .buttonStyle(PlainButtonStyle())
     }
     
-    // ✅ NEW: Quick Actions Section
+    // MARK: - Simple Stats Section
+    private var simpleStatsSection: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            HStack {
+                Text("Quick Stats")
+                    .font(.headline)
+                    .fontWeight(.semibold)
+                
+                Spacer()
+            }
+            
+            HStack(spacing: 12) {
+                SimpleStatCard(
+                    title: "Daily Avg",
+                    value: formatCurrency(dailyAverage),
+                    icon: "calendar",
+                    color: .blue
+                )
+                
+                SimpleStatCard(
+                    title: "This Week",
+                    value: formatCurrency(weeklySpending),
+                    icon: "chart.bar.fill",
+                    color: .purple
+                )
+            }
+            
+            // Simple spending indicator
+            VStack(alignment: .leading, spacing: 6) {
+                HStack {
+                    Text("Spending This Month")
+                        .font(.caption)
+                        .fontWeight(.medium)
+                    
+                    Spacer()
+                    
+                    Text(formatCurrency(abs(totalExpenses)))
+                        .font(.caption)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.red)
+                }
+                
+                GeometryReader { geometry in
+                    ZStack(alignment: .leading) {
+                        RoundedRectangle(cornerRadius: 4)
+                            .fill(Color(.systemGray5))
+                        
+                        RoundedRectangle(cornerRadius: 4)
+                            .fill(Color.red.opacity(0.7))
+                            .frame(width: geometry.size.width * spendingProgress)
+                            .animation(.easeInOut(duration: 0.5), value: totalExpenses)
+                    }
+                }
+                .frame(height: 6)
+            }
+        }
+        .padding()
+        .background(cardBackground)
+    }
+    
+    // MARK: - Quick Actions Section
     private var quickActionsSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Quick Actions")
@@ -166,18 +243,15 @@ struct MainDashboardView: View {
                 .fontWeight(.semibold)
             
             HStack(spacing: 12) {
-                // Add Income
-                quickActionButton(
+                QuickActionButton(
                     title: "Add Income",
                     icon: "plus.circle.fill",
                     color: .green
                 ) {
-                    // You can preset income when opening add transaction
                     showingAddTransactionView = true
                 }
                 
-                // Add Expense
-                quickActionButton(
+                QuickActionButton(
                     title: "Add Expense",
                     icon: "minus.circle.fill",
                     color: .red
@@ -185,8 +259,7 @@ struct MainDashboardView: View {
                     showingAddTransactionView = true
                 }
                 
-                // View All
-                quickActionButton(
+                QuickActionButton(
                     title: "View All",
                     icon: "list.bullet",
                     color: .blue
@@ -197,30 +270,7 @@ struct MainDashboardView: View {
         }
     }
     
-    // ✅ NEW: Quick action button helper
-    private func quickActionButton(title: String, icon: String, color: Color, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            VStack(spacing: 8) {
-                Image(systemName: icon)
-                    .font(.title2)
-                    .foregroundColor(color)
-                
-                Text(title)
-                    .font(.caption)
-                    .fontWeight(.medium)
-                    .foregroundColor(.primary)
-            }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 12)
-            .background(
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(color.opacity(0.1))
-            )
-        }
-        .buttonStyle(PlainButtonStyle())
-    }
-    
-    // ✅ UPDATED: Interactive recent transactions
+    // MARK: - Recent Transactions Section
     private var recentTransactions: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
@@ -238,28 +288,8 @@ struct MainDashboardView: View {
             }
             
             if transactions.isEmpty {
-                // Empty state
-                VStack(spacing: 12) {
-                    Image(systemName: "creditcard")
-                        .font(.largeTitle)
-                        .foregroundColor(.gray)
-                    
-                    Text("No transactions yet")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                    
-                    Button("Add your first transaction") {
-                        showingAddTransactionView = true
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .controlSize(.small)
-                }
-                .frame(height: 120)
-                .frame(maxWidth: .infinity)
-                .background(Color(.systemGray6))
-                .cornerRadius(12)
+                emptyTransactionsView
             } else {
-                // Show recent transactions (limit to 3)
                 LazyVStack(spacing: 8) {
                     ForEach(Array(transactions.prefix(3)), id: \.id) { transaction in
                         RecentTransactionRowView(transaction: transaction)
@@ -272,6 +302,7 @@ struct MainDashboardView: View {
         }
     }
     
+    // MARK: - Quick Stats Section
     private var quickStatsSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("This Month")
@@ -296,7 +327,37 @@ struct MainDashboardView: View {
         }
     }
     
-    // ✅ NEW: Computed properties for dashboard
+    // MARK: - Empty Transactions View
+    private var emptyTransactionsView: some View {
+        VStack(spacing: 12) {
+            Image(systemName: "creditcard")
+                .font(.largeTitle)
+                .foregroundColor(.gray)
+            
+            Text("No transactions yet")
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+            
+            Button("Add your first transaction") {
+                showingAddTransactionView = true
+            }
+            .buttonStyle(.borderedProminent)
+            .controlSize(.small)
+        }
+        .frame(height: 120)
+        .frame(maxWidth: .infinity)
+        .background(Color(.systemGray6))
+        .cornerRadius(12)
+    }
+    
+    // MARK: - Computed Properties
+    private var totalBalance: Double {
+        transactions.reduce(0) { total, transaction in
+            let amount = transaction.amount?.doubleValue ?? 0
+            return total + amount
+        }
+    }
+    
     private var totalIncome: Double {
         transactions
             .filter { ($0.amount?.doubleValue ?? 0) > 0 }
@@ -317,7 +378,45 @@ struct MainDashboardView: View {
         Set(transactions.compactMap { $0.category }).count
     }
     
-    // ✅ NEW: Helper function
+    // ✅ NEW: Added missing computed properties
+    private var dailyAverage: Double {
+        let thirtyDaysAgo = Calendar.current.date(byAdding: .day, value: -30, to: Date()) ?? Date()
+        let recentTransactions = transactions.filter {
+            ($0.transactionDate ?? Date()) >= thirtyDaysAgo && ($0.amount?.doubleValue ?? 0) < 0
+        }
+        let totalSpent = recentTransactions.reduce(0) { $0 + abs($1.amount?.doubleValue ?? 0) }
+        return totalSpent / 30.0
+    }
+
+    private var weeklySpending: Double {
+        let weekAgo = Calendar.current.date(byAdding: .day, value: -7, to: Date()) ?? Date()
+        let weekTransactions = transactions.filter {
+            ($0.transactionDate ?? Date()) >= weekAgo && ($0.amount?.doubleValue ?? 0) < 0
+        }
+        return weekTransactions.reduce(0) { $0 + abs($1.amount?.doubleValue ?? 0) }
+    }
+    
+    private var spendingProgress: Double {
+        let maxSpending = max(totalIncome * 0.7, 1000) // Either 70% of income or $1000 minimum
+        return min(abs(totalExpenses) / maxSpending, 1.0)
+    }
+    
+    private var cardBackground: some View {
+        RoundedRectangle(cornerRadius: 16)
+            .fill(Color(.systemGray6))
+            .shadow(color: .black.opacity(0.05), radius: 8, x: 0, y: 2)
+    }
+    
+    // MARK: - Helper Functions
+    private func greetingTime() -> String {
+        let hour = Calendar.current.component(.hour, from: Date())
+        switch hour {
+        case 0..<12: return "Morning"
+        case 12..<17: return "Afternoon"
+        default: return "Evening"
+        }
+    }
+    
     private func formatCurrency(_ amount: Double) -> String {
         let formatter = NumberFormatter()
         formatter.numberStyle = .currency
@@ -326,13 +425,76 @@ struct MainDashboardView: View {
     }
 }
 
-// ✅ NEW: Recent transaction row for dashboard
+// MARK: - Supporting Views
+
+// ✅ NEW: Added missing SimpleStatCard
+struct SimpleStatCard: View {
+    let title: String
+    let value: String
+    let icon: String
+    let color: Color
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                Image(systemName: icon)
+                    .font(.caption)
+                    .foregroundColor(color)
+                
+                Spacer()
+            }
+            
+            Text(title)
+                .font(.caption2)
+                .foregroundColor(.secondary)
+            
+            Text(value)
+                .font(.caption)
+                .fontWeight(.semibold)
+                .lineLimit(1)
+        }
+        .padding(8)
+        .background(
+            RoundedRectangle(cornerRadius: 8)
+                .fill(Color(.systemGray5))
+        )
+    }
+}
+
+struct QuickActionButton: View {
+    let title: String
+    let icon: String
+    let color: Color
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            VStack(spacing: 8) {
+                Image(systemName: icon)
+                    .font(.title2)
+                    .foregroundColor(color)
+                
+                Text(title)
+                    .font(.caption)
+                    .fontWeight(.medium)
+                    .foregroundColor(.primary)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 12)
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(color.opacity(0.1))
+            )
+        }
+        .buttonStyle(PlainButtonStyle())
+    }
+}
+
 struct RecentTransactionRowView: View {
     let transaction: Transaction
     
     var body: some View {
         HStack(spacing: 12) {
-            // Category icon
             ZStack {
                 Circle()
                     .fill(categoryColor.opacity(0.2))
@@ -343,7 +505,6 @@ struct RecentTransactionRowView: View {
                     .foregroundColor(categoryColor)
             }
             
-            // Transaction details
             VStack(alignment: .leading, spacing: 2) {
                 Text(transaction.notes ?? "No description")
                     .font(.subheadline)
@@ -357,7 +518,6 @@ struct RecentTransactionRowView: View {
             
             Spacer()
             
-            // Amount
             Text(formatAmount())
                 .font(.subheadline)
                 .fontWeight(.semibold)
@@ -404,7 +564,6 @@ struct RecentTransactionRowView: View {
     }
 }
 
-// ✅ NEW: Stat card for dashboard
 struct StatCardView: View {
     let title: String
     let value: String
@@ -431,6 +590,29 @@ struct StatCardView: View {
             RoundedRectangle(cornerRadius: 12)
                 .fill(color.opacity(0.1))
         )
+    }
+}
+
+// MARK: - Extensions
+
+extension View {
+    func shimmer() -> some View {
+        self.overlay(
+            Rectangle()
+                .fill(
+                    LinearGradient(
+                        colors: [.clear, .white.opacity(0.3), .clear],
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    )
+                )
+                .rotationEffect(.degrees(-45))
+                .animation(
+                    .easeInOut(duration: 1.5).repeatForever(autoreverses: false),
+                    value: UUID()
+                )
+        )
+        .clipped()
     }
 }
 
