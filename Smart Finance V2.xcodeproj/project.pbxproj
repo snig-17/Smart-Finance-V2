@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		F4C001062E4D0B1A000B7E38 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = F4C001052E4D0B12000B7E38 /* README.md */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		F44E2F3B2E473DA50070F348 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -27,6 +31,7 @@
 		F44E2F262E473DA30070F348 /* Smart Finance V2.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Smart Finance V2.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		F44E2F3A2E473DA50070F348 /* Smart Finance V2Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Smart Finance V2Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		F44E2F442E473DA50070F348 /* Smart Finance V2UITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Smart Finance V2UITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		F4C001052E4D0B12000B7E38 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -112,6 +117,7 @@
 		F44E2F1D2E473DA30070F348 = {
 			isa = PBXGroup;
 			children = (
+				F4C001052E4D0B12000B7E38 /* README.md */,
 				F44E2F282E473DA30070F348 /* Smart Finance V2 */,
 				F4640C452E4B6C2900DA719A /* Tests */,
 				F44E2F272E473DA30070F348 /* Products */,
@@ -243,6 +249,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F4C001062E4D0B1A000B7E38 /* README.md in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
