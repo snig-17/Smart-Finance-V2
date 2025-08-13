@@ -1,11 +1,9 @@
 #SmartFinance
 ##iOS Finance Tracker Application
 
-A production-ready iOS fintech application demonstrating advanced SwiftUI development and secure financial transaction management. Built with enterprise-level security and scalable architecture for modern financial applications.
 
-This project showcases iOS development expertise through a comprehensive personal finance management app with mandatory biometric authentication and real-time transaction processing.
 
-## Built With
+### Built With
 
 This project was built using these technologies:
 
@@ -17,7 +15,7 @@ This project was built using these technologies:
 - **Xcode 15+** - iOS development environment
 - **iOS 16.0+** - Target deployment
 
-## Features
+### Features
 
 - **Mandatory Biometric Authentication** - Face ID/Touch ID required for all access
 
@@ -33,11 +31,11 @@ This project was built using these technologies:
 
 -  **Persistent Storage** - Core Data with optimized queries and relationships
 
-## Getting Started
+### Getting Started
 
 Clone down this repository. You will need Xcode 15+ and iOS 16.0+ installed on your machine.
 
-### Installation and Setup Instructions
+#### Installation and Setup Instructions
 
 **Installation:** 
 ```bash
