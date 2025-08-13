@@ -1,5 +1,5 @@
-#SmartFinance
-##iOS Finance Tracker Application
+# SmartFinance
+## iOS Finance Tracker Application
 
 
 
